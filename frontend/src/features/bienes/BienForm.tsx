@@ -61,75 +61,129 @@ export default function BienForm() {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <div className="flex items-center gap-3">
-        <button onClick={() => navigate(-1)} className="text-gray-400 hover:text-gray-600"><ArrowLeft size={20} /></button>
-        <h1 className="text-2xl font-bold text-gray-900">{isEdit ? 'Editar bien' : 'Nuevo bien'}</h1>
+      <div className="page-head">
+        <div className="page-title">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="btn btn-ghost btn-sm -ml-1 mb-2 w-fit"
+          >
+            <ArrowLeft size={16} strokeWidth={1.75} /> Volver
+          </button>
+          <span className="eyebrow">Inventario</span>
+          <h1>{isEdit ? 'Editar bien' : 'Nuevo bien'}</h1>
+        </div>
       </div>
 
-      {error && <div className="px-4 py-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>}
+      {error && (
+        <div
+          className="rounded-[var(--r-md)] px-4 py-3 text-sm"
+          style={{
+            background: 'var(--danger-soft)',
+            color: 'var(--danger)',
+            border: '1px solid rgba(239,111,111,0.28)',
+          }}
+        >
+          {error}
+        </div>
+      )}
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
+      <form onSubmit={handleSubmit} className="card card-pad space-y-4">
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Código interno *" required>
-            <input value={form.codigo_interno} onChange={set('codigo_interno')} required className={inp} />
+          <Field label="Código interno" required>
+            <input
+              value={form.codigo_interno}
+              onChange={set('codigo_interno')}
+              required
+              className="input mono"
+            />
           </Field>
-          <Field label="Nombre *" required>
-            <input value={form.nombre} onChange={set('nombre')} required className={inp} />
+          <Field label="Nombre" required>
+            <input value={form.nombre} onChange={set('nombre')} required className="input" />
           </Field>
           <Field label="Marca">
-            <input value={form.marca} onChange={set('marca')} className={inp} />
+            <input value={form.marca} onChange={set('marca')} className="input" />
           </Field>
           <Field label="Modelo">
-            <input value={form.modelo} onChange={set('modelo')} className={inp} />
+            <input value={form.modelo} onChange={set('modelo')} className="input" />
           </Field>
           <Field label="Número de serie">
-            <input value={form.numero_serie} onChange={set('numero_serie')} className={inp} />
+            <input value={form.numero_serie} onChange={set('numero_serie')} className="input mono" />
           </Field>
           <Field label="Precio unitario">
-            <input type="number" step="0.01" value={form.precio_unitario} onChange={set('precio_unitario')} className={inp} />
+            <input
+              type="number"
+              step="0.01"
+              value={form.precio_unitario}
+              onChange={set('precio_unitario')}
+              className="input tnum"
+            />
           </Field>
           <Field label="Organización">
-            <select value={form.organizacion_id} onChange={set('organizacion_id')} className={inp}>
+            <select value={form.organizacion_id} onChange={set('organizacion_id')} className="field-select w-full">
               <option value="">— Sin organización —</option>
-              {orgs.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}
+              {orgs.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.nombre}
+                </option>
+              ))}
             </select>
           </Field>
           <Field label="Categoría">
-            <select value={form.categoria_id} onChange={set('categoria_id')} className={inp}>
+            <select value={form.categoria_id} onChange={set('categoria_id')} className="field-select w-full">
               <option value="">— Sin categoría —</option>
-              {cats.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+              {cats.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nombre}
+                </option>
+              ))}
             </select>
           </Field>
           <Field label="Estado">
-            <select value={form.estado_bien_id} onChange={set('estado_bien_id')} className={inp}>
+            <select value={form.estado_bien_id} onChange={set('estado_bien_id')} className="field-select w-full">
               <option value="">— Sin estado —</option>
-              {estados.map(e => <option key={e.id} value={e.id}>{e.nombre}</option>)}
+              {estados.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.nombre}
+                </option>
+              ))}
             </select>
           </Field>
           <Field label="Ubicación">
-            <select value={form.ubicacion_id} onChange={set('ubicacion_id')} className={inp}>
+            <select value={form.ubicacion_id} onChange={set('ubicacion_id')} className="field-select w-full">
               <option value="">— Sin ubicación —</option>
-              {ubics.map(u => <option key={u.id} value={u.id}>{u.nombre}</option>)}
+              {ubics.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.nombre}
+                </option>
+              ))}
             </select>
           </Field>
           <Field label="Fecha adquisición">
-            <input type="date" value={form.fecha_adquisicion} onChange={set('fecha_adquisicion')} className={inp} />
+            <input type="date" value={form.fecha_adquisicion} onChange={set('fecha_adquisicion')} className="input" />
           </Field>
           <Field label="Moneda">
-            <select value={form.moneda} onChange={set('moneda')} className={inp}>
-              <option>MXN</option><option>USD</option>
+            <select value={form.moneda} onChange={set('moneda')} className="field-select w-full">
+              <option>MXN</option>
+              <option>USD</option>
             </select>
           </Field>
         </div>
         <Field label="Descripción">
-          <textarea value={form.descripcion} onChange={set('descripcion')} rows={3} className={inp} />
+          <textarea
+            value={form.descripcion}
+            onChange={set('descripcion')}
+            rows={3}
+            className="input"
+            style={{ minHeight: 80, paddingTop: 10, paddingBottom: 10, resize: 'vertical' }}
+          />
         </Field>
         <div className="flex justify-end gap-3 pt-2">
-          <button type="button" onClick={() => navigate(-1)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+          <button type="button" onClick={() => navigate(-1)} className="btn btn-ghost">
             Cancelar
           </button>
-          <button type="submit" disabled={saving} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white px-4 py-2 rounded-lg text-sm transition-colors">
-            <Save size={16} /> {saving ? 'Guardando…' : 'Guardar'}
+          <button type="submit" disabled={saving} className="btn btn-primary">
+            <Save size={14} strokeWidth={1.75} /> {saving ? 'Guardando…' : 'Guardar'}
           </button>
         </div>
       </form>
@@ -137,15 +191,14 @@ export default function BienForm() {
   );
 }
 
-const inp = 'w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500';
-
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        {label}{required && <span className="text-red-500 ml-1">*</span>}
-      </label>
+    <label className="field">
+      <span>
+        {label}
+        {required ? <span className="req"> *</span> : null}
+      </span>
       {children}
-    </div>
+    </label>
   );
 }

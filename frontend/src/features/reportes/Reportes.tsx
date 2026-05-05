@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { request, download } from '@/lib/apiClient';
-import { FileSpreadsheet, FileText, Search } from 'lucide-react';
+import { FileSpreadsheet, FileText } from 'lucide-react';
 
 interface BitacoraRow {
   created_at: string;
@@ -15,96 +15,174 @@ interface BitacoraRow {
   motivo: string;
 }
 
-interface Meta { page: number; per_page: number; total: number; total_pages: number; }
+interface Meta {
+  page: number;
+  per_page: number;
+  total: number;
+  total_pages: number;
+}
 
 export default function Reportes() {
-  const [rows, setRows]     = useState<BitacoraRow[]>([]);
-  const [meta, setMeta]     = useState<Meta | null>(null);
-  const [desde, setDesde]   = useState(() => new Date().toISOString().slice(0, 8) + '01');
-  const [hasta, setHasta]   = useState(() => new Date().toISOString().slice(0, 10));
-  const [page, setPage]     = useState(1);
+  const [rows, setRows] = useState<BitacoraRow[]>([]);
+  const [meta, setMeta] = useState<Meta | null>(null);
+  const [desde, setDesde] = useState(() => new Date().toISOString().slice(0, 8) + '01');
+  const [hasta, setHasta] = useState(() => new Date().toISOString().slice(0, 10));
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
   function fetchData(p = 1) {
     setLoading(true);
     const params = new URLSearchParams({ desde, hasta, page: String(p), per_page: '50' });
     request<{ data: BitacoraRow[]; meta: Meta }>(`/reports/bitacora?${params}`)
-      .then(res => { setRows(res.data); setMeta(res.meta); })
+      .then((res) => {
+        setRows(res.data);
+        setMeta(res.meta);
+      })
       .finally(() => setLoading(false));
   }
 
-  useEffect(() => { fetchData(page); }, [page, desde, hasta]);
+  useEffect(() => {
+    fetchData(page);
+  }, [page, desde, hasta]);
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold text-gray-900">Bitácora de movimientos</h1>
+      <div className="page-head">
+        <div className="page-title">
+          <span className="eyebrow">Análisis</span>
+          <h1>Bitácora de movimientos</h1>
+          <span className="sub">Historial auditable por rango de fechas</span>
+        </div>
+      </div>
 
-      <div className="flex items-center gap-3 flex-wrap">
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Desde</label>
-          <input type="date" value={desde} onChange={e => { setDesde(e.target.value); setPage(1); }}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Hasta</label>
-          <input type="date" value={hasta} onChange={e => { setHasta(e.target.value); setPage(1); }}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
-        </div>
-        <div className="flex-1" />
-        <button onClick={() => download('/reports/bitacora/export', 'bitacora.xlsx', { desde, hasta, format: 'xlsx' })}
-          className="flex items-center gap-2 border border-gray-300 text-sm px-3 py-2 rounded-lg hover:bg-gray-50">
-          <FileSpreadsheet size={16} /> Excel
+      <div className="toolbar">
+        <label className="field max-w-[200px] mb-0">
+          <span>Desde</span>
+          <input
+            type="date"
+            value={desde}
+            onChange={(e) => {
+              setDesde(e.target.value);
+              setPage(1);
+            }}
+            className="input"
+          />
+        </label>
+        <label className="field max-w-[200px] mb-0">
+          <span>Hasta</span>
+          <input
+            type="date"
+            value={hasta}
+            onChange={(e) => {
+              setHasta(e.target.value);
+              setPage(1);
+            }}
+            className="input"
+          />
+        </label>
+        <div className="spacer hidden sm:block" />
+        <button
+          type="button"
+          onClick={() =>
+            download('/reports/bitacora/export', 'bitacora.xlsx', {
+              desde,
+              hasta,
+              format: 'xlsx',
+            })
+          }
+          className="btn"
+        >
+          <FileSpreadsheet size={14} strokeWidth={1.75} /> Excel
         </button>
-        <button onClick={() => download('/reports/bitacora/export', 'bitacora.pdf', { desde, hasta, format: 'pdf' })}
-          className="flex items-center gap-2 border border-gray-300 text-sm px-3 py-2 rounded-lg hover:bg-gray-50">
-          <FileText size={16} /> PDF
+        <button
+          type="button"
+          onClick={() =>
+            download('/reports/bitacora/export', 'bitacora.pdf', {
+              desde,
+              hasta,
+              format: 'pdf',
+            })
+          }
+          className="btn"
+        >
+          <FileText size={14} strokeWidth={1.75} /> PDF
         </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="table-wrap">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="table">
             <thead>
-              <tr className="bg-gray-50 text-left text-xs font-semibold text-gray-500 uppercase">
-                <th className="px-4 py-3">Fecha</th>
-                <th className="px-4 py-3">Tipo</th>
-                <th className="px-4 py-3">Código</th>
-                <th className="px-4 py-3">Bien</th>
-                <th className="px-4 py-3">Campo</th>
-                <th className="px-4 py-3">Antes</th>
-                <th className="px-4 py-3">Después</th>
-                <th className="px-4 py-3">Usuario</th>
-                <th className="px-4 py-3">Motivo</th>
+              <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Código</th>
+                <th>Bien</th>
+                <th>Campo</th>
+                <th>Antes</th>
+                <th>Después</th>
+                <th>Usuario</th>
+                <th>Motivo</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody>
               {loading ? (
-                <tr><td colSpan={9} className="text-center py-10 text-gray-400">Cargando…</td></tr>
-              ) : rows.length === 0 ? (
-                <tr><td colSpan={9} className="text-center py-10 text-gray-400">Sin movimientos en el período</td></tr>
-              ) : rows.map((r, i) => (
-                <tr key={i} className="hover:bg-gray-50 text-xs">
-                  <td className="px-4 py-2 text-gray-500 whitespace-nowrap">{r.created_at?.slice(0, 16)}</td>
-                  <td className="px-4 py-2"><span className="px-2 py-0.5 bg-gray-100 rounded font-medium">{r.tipo}</span></td>
-                  <td className="px-4 py-2 font-mono text-gray-600">{r.codigo_interno}</td>
-                  <td className="px-4 py-2 max-w-32 truncate text-gray-800">{r.activo_nombre}</td>
-                  <td className="px-4 py-2 text-gray-500">{r.campo_afectado || '—'}</td>
-                  <td className="px-4 py-2 text-gray-500 max-w-24 truncate">{r.valor_anterior || '—'}</td>
-                  <td className="px-4 py-2 text-gray-500 max-w-24 truncate">{r.valor_nuevo || '—'}</td>
-                  <td className="px-4 py-2 text-gray-500">{r.usuario || '—'}</td>
-                  <td className="px-4 py-2 text-gray-500 max-w-32 truncate">{r.motivo || '—'}</td>
+                <tr>
+                  <td colSpan={9} className="dim text-center py-10">
+                    Cargando…
+                  </td>
                 </tr>
-              ))}
+              ) : rows.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="dim text-center py-10">
+                    Sin movimientos en el período
+                  </td>
+                </tr>
+              ) : (
+                rows.map((r, i) => (
+                  <tr key={`${r.created_at}-${i}`}>
+                    <td className="muted tnum text-xs whitespace-nowrap">{r.created_at?.slice(0, 16)}</td>
+                    <td>
+                      <span className="tag">{r.tipo}</span>
+                    </td>
+                    <td className="mono muted text-xs">{r.codigo_interno}</td>
+                    <td className="max-w-[8rem] truncate">{r.activo_nombre}</td>
+                    <td className="muted text-xs">{r.campo_afectado || '—'}</td>
+                    <td className="muted max-w-[6rem] truncate text-xs">{r.valor_anterior || '—'}</td>
+                    <td className="muted max-w-[6rem] truncate text-xs">{r.valor_nuevo || '—'}</td>
+                    <td className="muted text-xs">{r.usuario || '—'}</td>
+                    <td className="muted max-w-[8rem] truncate text-xs">{r.motivo || '—'}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
         {meta && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 text-sm text-gray-500">
+          <div
+            className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm muted border-t"
+            style={{ borderColor: 'var(--line-1)' }}
+          >
             <span>{meta.total.toLocaleString()} registros</span>
-            <div className="flex gap-2">
-              <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="px-3 py-1 border rounded disabled:opacity-40 hover:bg-gray-50">Anterior</button>
-              <span>{page} / {meta.total_pages}</span>
-              <button disabled={page >= meta.total_pages} onClick={() => setPage(p => p + 1)} className="px-3 py-1 border rounded disabled:opacity-40 hover:bg-gray-50">Siguiente</button>
+            <div className="pager">
+              <button
+                type="button"
+                disabled={page <= 1}
+                className="pg-btn disabled:opacity-40"
+                onClick={() => setPage((p) => p - 1)}
+              >
+                ‹
+              </button>
+              <span className="pg-btn active border-[var(--line-2)]">{page}</span>
+              <span className="text-xs">/ {meta.total_pages}</span>
+              <button
+                type="button"
+                disabled={page >= meta.total_pages}
+                className="pg-btn disabled:opacity-40"
+                onClick={() => setPage((p) => p + 1)}
+              >
+                ›
+              </button>
             </div>
           </div>
         )}

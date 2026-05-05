@@ -3,15 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 
 export default function Login() {
-  const { login }  = useAuth();
-  const navigate   = useNavigate();
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const [error, action, pending] = useActionState(
     async (_prev: string | null, formData: FormData) => {
       try {
         await login(
           formData.get('email') as string,
-          formData.get('password') as string
+          formData.get('password') as string,
         );
         navigate('/dashboard');
         return null;
@@ -19,53 +19,62 @@ export default function Login() {
         return e instanceof Error ? e.message : 'Error al iniciar sesión';
       }
     },
-    null
+    null,
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">Gestor de Resguardos</h1>
-        <p className="text-sm text-gray-500 mb-6">Inicia sesión para continuar</p>
+    <div
+      className="flex min-h-screen items-center justify-center px-4"
+      style={{ background: 'var(--bg-0)' }}
+    >
+      <div className="card card-pad w-full max-w-sm shadow-[var(--shadow-2)]">
+        <div className="mb-6 flex flex-col items-center gap-3 text-center">
+          <div className="brand-mark text-lg">G</div>
+          <div className="col gap-0.5">
+            <div className="brand-text text-base">Gestor de Resguardos</div>
+            <div className="brand-sub">Acceso al sistema</div>
+          </div>
+        </div>
+        <p className="dim mb-6 text-center text-sm">Inicia sesión para continuar</p>
 
         {error && (
-          <div className="mb-4 px-4 py-3 rounded-lg bg-red-50 text-red-700 text-sm">
+          <div
+            className="mb-4 rounded-[var(--r-md)] px-4 py-3 text-sm"
+            style={{
+              background: 'var(--danger-soft)',
+              color: 'var(--danger)',
+              border: '1px solid rgba(239,111,111,0.28)',
+            }}
+          >
             {error}
           </div>
         )}
 
         <form action={action} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Correo o usuario
-            </label>
+          <label className="field">
+            <span>Correo o usuario</span>
             <input
               name="email"
               type="text"
               required
               autoComplete="username"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="input"
+              placeholder="usuario@dominio"
             />
-          </div>
+          </label>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Contraseña
-            </label>
+          <label className="field">
+            <span>Contraseña</span>
             <input
               name="password"
               type="password"
               required
               autoComplete="current-password"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="input"
             />
-          </div>
+          </label>
 
-          <button
-            type="submit"
-            disabled={pending}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-medium py-2 rounded-lg transition-colors"
-          >
+          <button type="submit" disabled={pending} className="btn btn-primary w-full justify-center mt-2">
             {pending ? 'Validando…' : 'Iniciar sesión'}
           </button>
         </form>

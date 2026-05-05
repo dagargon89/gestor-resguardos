@@ -55,61 +55,89 @@ export default function EmpleadoForm() {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <div className="flex items-center gap-3">
-        <button onClick={() => navigate(-1)} className="text-gray-400 hover:text-gray-600"><ArrowLeft size={20} /></button>
-        <h1 className="text-2xl font-bold text-gray-900">{isEdit ? 'Editar empleado' : 'Nuevo empleado'}</h1>
+      <div className="page-head">
+        <div className="page-title">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="btn btn-ghost btn-sm -ml-1 mb-2 w-fit"
+          >
+            <ArrowLeft size={16} strokeWidth={1.75} /> Volver
+          </button>
+          <span className="eyebrow">Personas</span>
+          <h1>{isEdit ? 'Editar empleado' : 'Nuevo empleado'}</h1>
+        </div>
       </div>
 
-      {error && <div className="px-4 py-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>}
+      {error && (
+        <div
+          className="rounded-[var(--r-md)] px-4 py-3 text-sm"
+          style={{
+            background: 'var(--danger-soft)',
+            color: 'var(--danger)',
+            border: '1px solid rgba(239,111,111,0.28)',
+          }}
+        >
+          {error}
+        </div>
+      )}
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
+      <form onSubmit={handleSubmit} className="card card-pad space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <Field label="Nombre *">
-            <input value={form.nombre} onChange={set('nombre')} required className={inp} />
+            <input value={form.nombre} onChange={set('nombre')} required className="input" />
           </Field>
           <Field label="Apellido paterno *">
-            <input value={form.apellido_paterno} onChange={set('apellido_paterno')} required className={inp} />
+            <input value={form.apellido_paterno} onChange={set('apellido_paterno')} required className="input" />
           </Field>
           <Field label="Apellido materno">
-            <input value={form.apellido_materno} onChange={set('apellido_materno')} className={inp} />
+            <input value={form.apellido_materno} onChange={set('apellido_materno')} className="input" />
           </Field>
           <Field label="N° Empleado">
-            <input value={form.numero_empleado} onChange={set('numero_empleado')} className={inp} />
+            <input value={form.numero_empleado} onChange={set('numero_empleado')} className="input mono" />
           </Field>
           <Field label="Puesto">
-            <input value={form.puesto} onChange={set('puesto')} className={inp} />
+            <input value={form.puesto} onChange={set('puesto')} className="input" />
           </Field>
           <Field label="Organización">
-            <select value={form.organizacion_id} onChange={set('organizacion_id')} className={inp}>
+            <select value={form.organizacion_id} onChange={set('organizacion_id')} className="field-select w-full">
               <option value="">— Sin organización —</option>
-              {orgs.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}
+              {orgs.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.nombre}
+                </option>
+              ))}
             </select>
           </Field>
           <Field label="Departamento">
-            <select value={form.departamento_id} onChange={set('departamento_id')} className={inp}>
+            <select value={form.departamento_id} onChange={set('departamento_id')} className="field-select w-full">
               <option value="">— Sin departamento —</option>
-              {deps.map(d => <option key={d.id} value={d.id}>{d.nombre}</option>)}
+              {deps.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.nombre}
+                </option>
+              ))}
             </select>
           </Field>
           <Field label="Email">
-            <input type="email" value={form.email} onChange={set('email')} className={inp} />
+            <input type="email" value={form.email} onChange={set('email')} className="input" />
           </Field>
           <Field label="Teléfono">
-            <input value={form.telefono} onChange={set('telefono')} className={inp} />
+            <input value={form.telefono} onChange={set('telefono')} className="input" />
           </Field>
           <Field label="Estado">
-            <select value={form.activo} onChange={set('activo')} className={inp}>
+            <select value={form.activo} onChange={set('activo')} className="field-select w-full">
               <option value="1">Activo</option>
               <option value="0">Inactivo</option>
             </select>
           </Field>
         </div>
         <div className="flex justify-end gap-3 pt-2">
-          <button type="button" onClick={() => navigate(-1)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+          <button type="button" onClick={() => navigate(-1)} className="btn btn-ghost">
             Cancelar
           </button>
-          <button type="submit" disabled={saving} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white px-4 py-2 rounded-lg text-sm transition-colors">
-            <Save size={16} /> {saving ? 'Guardando…' : 'Guardar'}
+          <button type="submit" disabled={saving} className="btn btn-primary">
+            <Save size={14} strokeWidth={1.75} /> {saving ? 'Guardando…' : 'Guardar'}
           </button>
         </div>
       </form>
@@ -117,13 +145,11 @@ export default function EmpleadoForm() {
   );
 }
 
-const inp = 'w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500';
-
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+    <label className="field">
+      <span>{label}</span>
       {children}
-    </div>
+    </label>
   );
 }

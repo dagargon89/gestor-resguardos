@@ -18,8 +18,14 @@ const Reportes        = lazy(() => import('@/features/reportes/Reportes'))
 const PortalEmpleado  = lazy(() => import('@/features/portal/PortalEmpleado'))
 
 const Spinner = () => (
-  <div className="flex items-center justify-center h-screen">
-    <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+  <div
+    className="flex items-center justify-center h-screen"
+    style={{ background: 'var(--bg-0)' }}
+  >
+    <div
+      className="w-8 h-8 rounded-full animate-spin border-2 border-[var(--line-2)] border-t-[var(--accent)]"
+      aria-hidden
+    />
   </div>
 )
 

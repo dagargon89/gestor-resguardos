@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { request } from '@/lib/apiClient';
-import { FileText, Eye, User } from 'lucide-react';
+import { FileText, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface Perfil {
@@ -34,67 +34,120 @@ export default function PortalEmpleado() {
       request<{ data: Perfil }>('/portal/perfil'),
       request<{ data: Asignacion[] }>('/portal/mis-asignaciones?estado=activa'),
     ])
-      .then(([p, a]) => { setPerfil(p.data); setAsignaciones(a.data); })
-      .catch(e => setError(e.message))
+      .then(([p, a]) => {
+        setPerfil(p.data);
+        setAsignaciones(a.data);
+      })
+      .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" /></div>;
-  if (error)   return <div className="px-4 py-3 bg-red-50 text-red-700 rounded-lg">{error}</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--line-2)] border-t-[var(--accent)]" />
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div
+        className="rounded-[var(--r-md)] px-4 py-3 text-sm"
+        style={{
+          background: 'var(--danger-soft)',
+          color: 'var(--danger)',
+          border: '1px solid rgba(239,111,111,0.28)',
+        }}
+      >
+        {error}
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6 max-w-3xl">
-      <h1 className="text-2xl font-bold text-gray-900">Mi portal</h1>
+    <div className="max-w-3xl space-y-6">
+      <div className="page-head mb-0">
+        <div className="page-title">
+          <span className="eyebrow">Empleado</span>
+          <h1>Mi portal</h1>
+          <span className="sub">Resumen de tu perfil y asignaciones activas</span>
+        </div>
+      </div>
 
       {perfil && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6 flex items-start gap-4">
-          <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center">
-            <User size={26} className="text-blue-600" />
+        <div className="card card-pad flex items-start gap-4">
+          <div
+            className="avatar avatar-lg shrink-0"
+            style={{
+              background: 'var(--accent-soft)',
+              borderColor: 'var(--accent-line)',
+              color: 'var(--accent)',
+            }}
+          >
+            <User size={22} strokeWidth={1.75} />
           </div>
           <div>
-            <p className="text-lg font-bold text-gray-900">{`${perfil.nombre} ${perfil.apellido_paterno} ${perfil.apellido_materno ?? ''}`}</p>
-            <p className="text-sm text-gray-500">{perfil.puesto}</p>
-            <p className="text-sm text-gray-400">{perfil.departamento} · {perfil.organizacion}</p>
-            {perfil.email && <p className="text-sm text-blue-600 mt-1">{perfil.email}</p>}
+            <p className="text-lg font-semibold" style={{ color: 'var(--text-1)' }}>
+              {`${perfil.nombre} ${perfil.apellido_paterno} ${perfil.apellido_materno ?? ''}`}
+            </p>
+            <p className="muted text-sm">{perfil.puesto}</p>
+            <p className="dim mt-1 text-sm">
+              {perfil.departamento} · {perfil.organizacion}
+            </p>
+            {perfil.email && (
+              <p className="linkish mt-2 text-sm">{perfil.email}</p>
+            )}
           </div>
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="font-semibold text-gray-800">Mis asignaciones activas</h2>
-          <Link to="/portal/historial" className="text-sm text-blue-600 hover:underline">Ver historial</Link>
+      <div className="table-wrap">
+        <div
+          className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3"
+          style={{ borderColor: 'var(--line-1)' }}
+        >
+          <h2 className="text-[15px] font-semibold" style={{ color: 'var(--text-1)' }}>
+            Mis asignaciones activas
+          </h2>
         </div>
 
         {asignaciones.length === 0 ? (
-          <p className="text-center py-10 text-gray-400 text-sm">Sin asignaciones activas</p>
+          <p className="dim py-10 text-center text-sm">Sin asignaciones activas</p>
         ) : (
-          <table className="w-full text-sm">
-            <thead><tr className="bg-gray-50 text-left text-xs font-semibold text-gray-500 uppercase">
-              <th className="px-4 py-3">Folio</th>
-              <th className="px-4 py-3">Tipo</th>
-              <th className="px-4 py-3">Bienes</th>
-              <th className="px-4 py-3">Inicio</th>
-              <th className="px-4 py-3">Fin</th>
-              <th className="px-4 py-3"></th>
-            </tr></thead>
-            <tbody className="divide-y divide-gray-100">
-              {asignaciones.map(a => (
-                <tr key={a.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-mono text-xs font-bold text-blue-700">{a.folio}</td>
-                  <td className="px-4 py-3 capitalize">{a.tipo}</td>
-                  <td className="px-4 py-3 text-gray-500">{a.bienes?.length ?? 0} bien(es)</td>
-                  <td className="px-4 py-3 text-gray-500">{a.inicio}</td>
-                  <td className="px-4 py-3 text-gray-500">{a.fin_prevista ?? '—'}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2 justify-end">
-                      <Link to={`/asignaciones/${a.id}/carta`} className="text-gray-400 hover:text-green-600"><FileText size={16} /></Link>
-                    </div>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Folio</th>
+                  <th>Tipo</th>
+                  <th>Bienes</th>
+                  <th>Inicio</th>
+                  <th>Fin</th>
+                  <th aria-label="Acciones" />
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {asignaciones.map((a) => (
+                  <tr key={a.id}>
+                    <td className="mono">
+                      <span className="gr-code">{a.folio}</span>
+                    </td>
+                    <td className="capitalize muted">{a.tipo}</td>
+                    <td className="muted">{a.bienes?.length ?? 0} bien(es)</td>
+                    <td className="muted tnum">{a.inicio}</td>
+                    <td className="muted tnum">{a.fin_prevista ?? '—'}</td>
+                    <td>
+                      <div className="row justify-end">
+                        <Link to={`/asignaciones/${a.id}/carta`} className="icon-action">
+                          <FileText size={16} strokeWidth={1.75} />
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
