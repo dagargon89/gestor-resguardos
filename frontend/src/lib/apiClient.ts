@@ -29,16 +29,38 @@ export async function request<T = unknown>(
 
   const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
 
-  if (res.status === 401) {
-    clearToken();
-    window.location.href = '/login';
-    throw new Error('No autenticado');
+  let json: Record<string, unknown> = {};
+  const ct = res.headers.get('content-type');
+  if (ct?.includes('application/json')) {
+    try {
+      json = (await res.json()) as Record<string, unknown>;
+    } catch {
+      /* cuerpo vacío o no JSON */
+    }
   }
 
-  const json = await res.json();
+  if (res.status === 401) {
+    const method = (options.method ?? 'GET').toUpperCase();
+    const isLoginAttempt = path === '/auth/login' && method === 'POST';
+
+    if (!isLoginAttempt) {
+      clearToken();
+      window.location.href = '/login';
+    }
+
+    const msg =
+      (json.error as { message?: string } | undefined)?.message ??
+      (json.messages as { error?: string } | undefined)?.error ??
+      'No autenticado';
+    throw new Error(msg);
+  }
 
   if (!res.ok) {
-    throw new Error(json.error?.message ?? json.messages?.error ?? `Error ${res.status}`);
+    throw new Error(
+      (json.error as { message?: string } | undefined)?.message ??
+        (json.messages as { error?: string } | undefined)?.error ??
+        `Error ${res.status}`
+    );
   }
 
   return json as T;
